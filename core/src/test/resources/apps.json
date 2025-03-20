@@ -95,5 +95,89 @@
         }
       }
     }
+  },
+  "dictionaries": {
+    "jcr:primaryType": "sling:Folder",
+    "jcr:title": "Dictionaries",
+    "fruit": {
+      "jcr:primaryType": "sling:Folder",
+      "i18n": {
+        "jcr:primaryType": "sling:Folder",
+        "en": {
+          "jcr:primaryType": "sling:Folder",
+          "jcr:mixinTypes": [
+            "mix:language"
+          ],
+          "sling:basename": "/content/dictionaries/fruit/i18n",
+          "jcr:language": "en",
+          "sling:resourceType": "sling:Folder",
+          "apple": {
+            "jcr:primaryType": "sling:MessageEntry",
+            "sling:message": "Apple",
+            "sling:key": "apple"
+          },
+          "banana": {
+            "jcr:primaryType": "sling:MessageEntry",
+            "sling:message": "Banana"
+          },
+          "cherry": {
+            "jcr:primaryType": "sling:MessageEntry",
+            "sling:message": "Cherry",
+            "sling:key": "cherry"
+          }
+        },
+        "nl_be": {
+          "jcr:primaryType": "nt:folder",
+          "jcr:mixinTypes": [
+            "mix:language"
+          ],
+          "sling:basename": "/content/dictionaries/fruit/i18n",
+          "jcr:language": "nl_BE",
+          "apple": {
+            "jcr:primaryType": "sling:MessageEntry",
+            "sling:message": "Appel",
+            "sling:key": "apple"
+          },
+          "banana": {
+            "jcr:primaryType": "sling:MessageEntry",
+            "sling:message": "Banaan"
+          },
+          "cherry": {
+            "jcr:primaryType": "sling:MessageEntry",
+            "sling:message": "Kers",
+            "sling:key": "cherry"
+          }
+        }
+      }
+    },
+    "vegetables": {
+      "jcr:primaryType": "sling:Folder",
+      "i18n": {
+        "jcr:primaryType": "nt:unstructured",
+        "en": {
+          "jcr:primaryType": "sling:Folder",
+          "jcr:mixinTypes": [
+            "mix:language"
+          ],
+          "sling:basename": "/content/dictionaries/vegetables/i18n",
+          "jcr:language": "en",
+          "sling:resourceType": "sling:Folder",
+          "brocolli": {
+            "jcr:primaryType": "sling:MessageEntry",
+            "sling:message": "Brocolli",
+            "sling:key": "brocolli"
+          },
+          "carrot": {
+            "jcr:primaryType": "sling:MessageEntry",
+            "sling:message": "Carrot"
+          },
+          "tomato": {
+            "jcr:primaryType": "sling:MessageEntry",
+            "sling:message": "Tomato",
+            "sling:key": "tomato"
+          }
+        }
+      }
+    }
   }
 }

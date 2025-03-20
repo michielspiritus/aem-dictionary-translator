@@ -1,6 +1,7 @@
 package be.orbinson.aem.dictionarytranslator.servlets.action;
 
 import be.orbinson.aem.dictionarytranslator.services.impl.DictionaryServiceImpl;
+import com.adobe.granite.license.ProductInfoProvider;
 import com.day.cq.replication.Replicator;
 import io.wcm.testing.mock.aem.junit5.AemContext;
 import io.wcm.testing.mock.aem.junit5.AemContextExtension;
@@ -24,6 +25,7 @@ class ExportDictionaryServletTest {
 
     @BeforeEach
     void setUp() {
+        context.registerService(ProductInfoProvider.class, mock(ProductInfoProvider.class));
         context.registerService(Replicator.class, mock(Replicator.class));
         context.registerInjectActivateService(new DictionaryServiceImpl());
 

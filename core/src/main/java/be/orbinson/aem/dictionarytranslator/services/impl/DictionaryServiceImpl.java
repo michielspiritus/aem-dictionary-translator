@@ -3,6 +3,7 @@ package be.orbinson.aem.dictionarytranslator.services.impl;
 import be.orbinson.aem.dictionarytranslator.exception.DictionaryException;
 import be.orbinson.aem.dictionarytranslator.services.DictionaryService;
 import be.orbinson.aem.dictionarytranslator.utils.DictionaryConstants;
+import com.adobe.granite.license.ProductInfoProvider;
 import com.day.cq.commons.jcr.JcrConstants;
 import com.day.cq.commons.jcr.JcrUtil;
 import com.day.cq.replication.ReplicationActionType;
@@ -14,6 +15,7 @@ import org.apache.sling.api.resource.*;
 import org.apache.sling.jcr.resource.api.JcrResourceConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.osgi.framework.Version;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -34,12 +36,22 @@ public class DictionaryServiceImpl implements DictionaryService {
 
     private static final Logger LOG = LoggerFactory.getLogger(DictionaryServiceImpl.class);
     private static final String SLING_BASENAME = "sling:basename";
+    private static final Version originalCloudServiceVersion = new Version(2019, 12, 0);
 
     @Reference
     private Replicator replicator;
 
+    @Reference
+    private ProductInfoProvider productInfoProvider;
+
     public boolean isEditableDictionary(Resource resource) {
+        boolean isCloudInstance = productInfoProvider.getProductInfo().getVersion().compareTo(originalCloudServiceVersion) > 0;
         String path = resource.getPath();
+
+        if (isCloudInstance && (path.startsWith("/apps") || path.startsWith("/libs"))) {
+            return false;
+        }
+
         Session session = resource.getResourceResolver().adaptTo(Session.class);
         if (session != null) {
             try {

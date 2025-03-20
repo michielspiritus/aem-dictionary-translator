@@ -4,6 +4,8 @@ import be.orbinson.aem.dictionarytranslator.exception.DictionaryException;
 import be.orbinson.aem.dictionarytranslator.models.Dictionary;
 import be.orbinson.aem.dictionarytranslator.models.impl.DictionaryImpl;
 import be.orbinson.aem.dictionarytranslator.services.DictionaryService;
+import com.adobe.granite.license.ProductInfo;
+import com.adobe.granite.license.ProductInfoProvider;
 import com.day.cq.replication.ReplicationActionType;
 import com.day.cq.replication.ReplicationException;
 import com.day.cq.replication.Replicator;
@@ -21,6 +23,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.osgi.framework.Version;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -52,11 +55,21 @@ class DictionaryServiceImplTest {
     @Mock
     Replicator replicator;
 
+    @Mock
+    ProductInfoProvider productInfoProvider;
+
+    @Mock
+    ProductInfo productInfo;
+
+    @Mock
+    Version version;
+
     @BeforeEach
     void setup() {
         context.addModelsForClasses(DictionaryImpl.class);
 
         replicator = context.registerService(Replicator.class, replicator);
+        productInfoProvider = context.registerService(ProductInfoProvider.class, productInfoProvider);
         dictionaryService = context.registerInjectActivateService(new DictionaryServiceImpl());
 
         context.load().json("/content.json", "/content");
@@ -83,6 +96,8 @@ class DictionaryServiceImplTest {
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     void dictionaryShouldBeEditableWhenPriviledgesAreFullfilled(boolean hasPrivileges) throws RepositoryException {
+        when(productInfoProvider.getProductInfo()).thenReturn(productInfo);
+        when(productInfo.getVersion()).thenReturn(version);
         Session session = MockJcr.newSession();
         context.registerAdapter(ResourceResolver.class, Session.class, session);
         AccessControlManager acm = Mockito.mock(AccessControlManager.class);
@@ -95,7 +110,19 @@ class DictionaryServiceImplTest {
     }
 
     @Test
+    void dictionaryShouldNotBeEditableWhenInAppsOrLibsOnCloud() throws RepositoryException {
+        context.load().json("/apps.json", "/apps");
+        when(productInfoProvider.getProductInfo()).thenReturn(productInfo);
+        when(productInfo.getVersion()).thenReturn(version);
+        context.currentResource("/apps/dictionaries/fruit/i18n");
+
+        assertFalse(dictionaryService.isEditableDictionary(context.currentResource()));
+    }
+
+    @Test
     void dictionaryShouldNotBeEditableWhenPrivilegesCanNotBeDetermined() throws RepositoryException {
+        when(productInfoProvider.getProductInfo()).thenReturn(productInfo);
+        when(productInfo.getVersion()).thenReturn(version);
         Session session = MockJcr.newSession();
         context.registerAdapter(ResourceResolver.class, Session.class, session);
         AccessControlManager acm = Mockito.mock(AccessControlManager.class);

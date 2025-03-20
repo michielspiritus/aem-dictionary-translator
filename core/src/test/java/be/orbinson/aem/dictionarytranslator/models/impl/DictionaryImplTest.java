@@ -2,6 +2,8 @@ package be.orbinson.aem.dictionarytranslator.models.impl;
 
 import be.orbinson.aem.dictionarytranslator.models.Dictionary;
 import be.orbinson.aem.dictionarytranslator.services.impl.DictionaryServiceImpl;
+import com.adobe.granite.license.ProductInfo;
+import com.adobe.granite.license.ProductInfoProvider;
 import com.day.cq.replication.Replicator;
 import io.wcm.testing.mock.aem.junit5.AemContext;
 import io.wcm.testing.mock.aem.junit5.AemContextExtension;
@@ -12,7 +14,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mockito;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.osgi.framework.Version;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -25,16 +29,20 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(AemContextExtension.class)
+@ExtendWith({AemContextExtension.class, MockitoExtension.class})
 class DictionaryImplTest {
 
     private final AemContext context = new AemContext();
 
+    @Mock
+    private ProductInfoProvider productInfoProvider;
+
     @BeforeEach
-    public void setUp() {
+    public void setup() {
         context.addModelsForClasses(DictionaryImpl.class);
 
         context.registerService(Replicator.class, mock(Replicator.class));
+        productInfoProvider = context.registerService(ProductInfoProvider.class, productInfoProvider);
         context.registerInjectActivateService(new DictionaryServiceImpl());
 
         context.load().json("/content.json", "/content");
@@ -61,9 +69,13 @@ class DictionaryImplTest {
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     void dictionaryShouldBeEditable(boolean hasPrivileges) throws RepositoryException {
+        ProductInfo productInfo = mock(ProductInfo.class);
+        Version version = mock(Version.class);
+        when(productInfoProvider.getProductInfo()).thenReturn(productInfo);
+        when(productInfo.getVersion()).thenReturn(version);
         Session session = MockJcr.newSession();
         context.registerAdapter(ResourceResolver.class, Session.class, session);
-        AccessControlManager acm = Mockito.mock(AccessControlManager.class);
+        AccessControlManager acm = mock(AccessControlManager.class);
         MockJcr.setAccessControlManager(session, acm);
         when(acm.hasPrivileges(anyString(), any())).thenReturn(hasPrivileges);
 

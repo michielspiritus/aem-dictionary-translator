@@ -1,6 +1,7 @@
 package be.orbinson.aem.dictionarytranslator.servlets.datasource;
 
 import be.orbinson.aem.dictionarytranslator.services.impl.DictionaryServiceImpl;
+import com.adobe.granite.license.ProductInfoProvider;
 import com.adobe.granite.ui.components.ds.DataSource;
 import com.adobe.granite.ui.components.ds.SimpleDataSource;
 import com.day.cq.replication.Replicator;
@@ -25,6 +26,7 @@ class BreadcrumbsDatasourceTest {
     @BeforeEach
     void beforeEach() {
         context.registerService(Replicator.class, mock(Replicator.class));
+        context.registerService(ProductInfoProvider.class, mock(ProductInfoProvider.class));
         context.registerInjectActivateService(new DictionaryServiceImpl());
 
         servlet = context.registerInjectActivateService(new BreadcrumbsDatasource());

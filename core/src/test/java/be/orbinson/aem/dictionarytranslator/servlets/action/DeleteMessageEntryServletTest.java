@@ -3,6 +3,7 @@ package be.orbinson.aem.dictionarytranslator.servlets.action;
 import be.orbinson.aem.dictionarytranslator.services.DictionaryService;
 import be.orbinson.aem.dictionarytranslator.services.impl.CombiningMessageEntryResourceProvider;
 import be.orbinson.aem.dictionarytranslator.services.impl.DictionaryServiceImpl;
+import com.adobe.granite.license.ProductInfoProvider;
 import com.day.cq.replication.ReplicationActionType;
 import com.day.cq.replication.ReplicationException;
 import com.day.cq.replication.Replicator;
@@ -23,8 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith({AemContextExtension.class, MockitoExtension.class})
 class DeleteMessageEntryServletTest {
@@ -41,6 +41,7 @@ class DeleteMessageEntryServletTest {
     @BeforeEach
     void beforeEach() {
         replicator = context.registerService(Replicator.class, replicator);
+        context.registerService(ProductInfoProvider.class, mock(ProductInfoProvider.class));
 
         dictionaryService = context.registerInjectActivateService(new DictionaryServiceImpl());
 

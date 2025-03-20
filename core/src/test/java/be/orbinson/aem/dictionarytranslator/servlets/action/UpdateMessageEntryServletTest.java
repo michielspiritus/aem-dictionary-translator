@@ -3,6 +3,8 @@ package be.orbinson.aem.dictionarytranslator.servlets.action;
 import be.orbinson.aem.dictionarytranslator.services.DictionaryService;
 import be.orbinson.aem.dictionarytranslator.services.impl.CombiningMessageEntryResourceProvider;
 import be.orbinson.aem.dictionarytranslator.services.impl.DictionaryServiceImpl;
+import com.adobe.granite.license.ProductInfo;
+import com.adobe.granite.license.ProductInfoProvider;
 import com.day.cq.replication.Replicator;
 import io.wcm.testing.mock.aem.junit5.AemContext;
 import io.wcm.testing.mock.aem.junit5.AemContextExtension;
@@ -12,6 +14,9 @@ import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.osgi.framework.Version;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -24,8 +29,9 @@ import static org.apache.jackrabbit.JcrConstants.JCR_PRIMARYTYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-@ExtendWith(AemContextExtension.class)
+@ExtendWith({AemContextExtension.class, MockitoExtension.class})
 class UpdateMessageEntryServletTest {
 
     private final AemContext context = new AemContext(ResourceResolverType.RESOURCEPROVIDER_MOCK);
@@ -34,9 +40,13 @@ class UpdateMessageEntryServletTest {
 
     DictionaryService dictionaryService;
 
+    @Mock
+    ProductInfoProvider productInfoProvider;
+
     @BeforeEach
     void beforeEach() {
         context.registerService(Replicator.class, mock(Replicator.class));
+        productInfoProvider = context.registerService(ProductInfoProvider.class, productInfoProvider);
         dictionaryService = context.registerInjectActivateService(new DictionaryServiceImpl());
         context.registerInjectActivateService(new CombiningMessageEntryResourceProvider());
 
@@ -65,6 +75,10 @@ class UpdateMessageEntryServletTest {
 
     @Test
     void doPostWithValidParams() throws IOException {
+        ProductInfo productInfo = mock(ProductInfo.class);
+        Version version = mock(Version.class);
+        when(productInfoProvider.getProductInfo()).thenReturn(productInfo);
+        when(productInfo.getVersion()).thenReturn(version);
         context.load().json("/content.json", "/content");
 
         context.request().setParameterMap(Map.of(
